@@ -1,0 +1,25 @@
+{
+  "name": "ming_mysql_mq",
+  "version": "1.0.0",
+  "description": "基于mysql的消息队列,用于日志记录与消息分发",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/minglie/ming_mysql_mq.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/minglie/ming_mysql_mq/issues"
+  },
+  "homepage": "https://github.com/minglie/ming_mysql_mq#readme",
+  "dependencies": {
+    "ming_node": "^0.1.5",
+    "mysql": "^2.16.0",
+    "request": "^2.88.0"
+  }
+}
