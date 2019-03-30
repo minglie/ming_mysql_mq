@@ -1,0 +1,1 @@
+var M=require("ming_node")var app=M.server()app.listen(11112)app.post("/topic01Listener",async (req,res)=>{    let message=JSON.parse(req.body);    console.log(message)    res.send(M.result("ok"))})
