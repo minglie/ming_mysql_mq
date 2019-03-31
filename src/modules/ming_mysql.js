@@ -1,19 +1,21 @@
 var mysql  = require('mysql');
 var path=require('path');
 var M=require("ming_node")
-
-
 var applicationConfig;
-
 applicationConfig=M.getObjByFile(path.join(__dirname, "../../applicationConfig.json"));
-
 var myDbconfig=applicationConfig.dbconfig;
+
+
 
 
 var Db = mysql.createConnection(myDbconfig);
 Db.myDbconfig=myDbconfig;
 Db.display_sql_enable=false;
 Db.do_sql_enable=true;
+Db.do_trigger_enable=true;
+
+
+
 Db.connect();
 
 Db.getAddObjectSql=function(tableName,obj){
@@ -31,25 +33,6 @@ Db.getAddObjectSql=function(tableName,obj){
     return sql;
 }
 
-
-
-/**
- *生成sql时对不合法字段过滤
- */
-Db.getAddObjectSql1=function(tableName,obj){
-    var fields="(";
-    var values="(";
-    for(let field in obj){
-        fields+=field+",";
-        values+=`'${obj[field].replace(/'|"/g,"")}'`+",";
-    }
-    fields=fields.substr(0,fields.lastIndexOf(","));
-    values=values.substr(0,values.lastIndexOf(","));
-    fields+=")";
-    values+=")";
-    let sql = "insert into "+tableName+fields+" values "+values;
-    return sql;
-}
 
 
 Db.getDeleteObjectSql=function(tableName,obj){
@@ -96,6 +79,18 @@ Db.getQueryObjectSql=function(tableName,obj){
 
 
 function doSql(sql){
+    /**
+     * 前置触发器
+     */
+    if(Db.do_trigger_enable){
+        let beforeTriggerTables=Object.keys(Db._before_trigger)
+        for (let i=0;i<beforeTriggerTables.length;i++){
+            if(sql.indexOf(beforeTriggerTables[i])>-1){
+                Db._before_trigger[beforeTriggerTables[i]](sql);
+            }
+        }
+    }
+
     var promise = new Promise(function(reslove,reject){
         if(Db.display_sql_enable) M.log(sql+";")
         if(Db.do_sql_enable){
@@ -106,6 +101,17 @@ function doSql(sql){
                         reject(err);
                     }
                     reslove(result);
+                    /**
+                     * 后置触发器
+                     */
+                    if(Db.do_trigger_enable) {
+                        let afterTriggerTables = Object.keys(Db._after_trigger)
+                        for (let i = 0; i < afterTriggerTables.length; i++) {
+                            if (sql.indexOf(afterTriggerTables[i]) > -1) {
+                                Db._after_trigger[afterTriggerTables[i]](sql);
+                            }
+                        }
+                    }
                 });
         }
     })
@@ -130,6 +136,24 @@ function getByObj(tableName,obj){
     var sql=Db.getQueryObjectSql(tableName,obj);
     return  Db.doSql(sql);
 }
+
+
+
+//表改动之前触发
+Db._before_trigger={};
+//表改动之后触发
+Db._after_trigger={};
+
+Db.beforeTrigger=function(tableName,callback){
+    Db._before_trigger[tableName]=callback;
+}
+Db.afterTrigger=function(tableName,callback){
+    Db._after_trigger[tableName]=callback;
+}
+
+
+
+
 
 Db.addObj=addObj;
 Db.deleteObj=deleteObj;
