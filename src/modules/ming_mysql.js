@@ -78,19 +78,7 @@ Db.getQueryObjectSql=function(tableName,obj){
 
 
 
-function doSql(sql){
-    /**
-     * 前置触发器
-     */
-    if(Db.do_trigger_enable){
-        let beforeTriggerTables=Object.keys(Db._before_trigger)
-        for (let i=0;i<beforeTriggerTables.length;i++){
-            if(sql.indexOf(beforeTriggerTables[i])>-1){
-                Db._before_trigger[beforeTriggerTables[i]](sql);
-            }
-        }
-    }
-
+Db.doSql=function(sql){
     var promise = new Promise(function(reslove,reject){
         if(Db.display_sql_enable) M.log(sql+";")
         if(Db.do_sql_enable){
@@ -101,24 +89,25 @@ function doSql(sql){
                         reject(err);
                     }
                     reslove(result);
-                    /**
-                     * 后置触发器
-                     */
-                    if(Db.do_trigger_enable) {
-                        let afterTriggerTables = Object.keys(Db._after_trigger)
-                        for (let i = 0; i < afterTriggerTables.length; i++) {
-                            if (sql.indexOf(afterTriggerTables[i]) > -1) {
-                                Db._after_trigger[afterTriggerTables[i]](sql);
-                            }
-                        }
-                    }
                 });
         }
     })
     return promise;
 }
 
-Db.doSql=doSql;
+
+
+Db.afterTrigger=function (sql) {
+    if(Db.do_trigger_enable) {
+        let afterTriggerTables = Object.keys(Db._after_trigger)
+        for (let i = 0; i < afterTriggerTables.length; i++) {
+            if (sql.indexOf(afterTriggerTables[i]) > -1) {
+                Db._after_trigger[afterTriggerTables[i]](sql);
+            }
+        }
+    }
+}
+
 
 function addObj(tableName,obj){
     var sql=Db.getAddObjectSql(tableName,obj);
@@ -144,10 +133,11 @@ Db._before_trigger={};
 //表改动之后触发
 Db._after_trigger={};
 
-Db.beforeTrigger=function(tableName,callback){
-    Db._before_trigger[tableName]=callback;
-}
-Db.afterTrigger=function(tableName,callback){
+
+/**
+ *注册后置触发器
+ */
+Db.registAfterTrigger=function(tableName,callback){
     Db._after_trigger[tableName]=callback;
 }
 

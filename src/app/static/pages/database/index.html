@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>index</title>
-    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.net/Public/js/easyui/themes/default/easyui.css">
-    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.net/Public/js/easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="https://minglie.github.io/public/easyui/css/easyui.css">
+    <link rel="stylesheet" type="text/css" href="https://minglie.github.io/public/easyui/css/icon.css">
     <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
-    <script type="text/javascript" src="https://jihefu.github.io/js/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="https://minglie.github.io/public/easyui/js/jquery.easyui.min.js"></script>
     <script src="https://minglie.github.io/js/M_mock.js"></script>
     <script>
         /**
@@ -149,6 +149,8 @@
 </div>
 <!-- 中间的数据展示 -->
 <div id="center" data-options="region:'center',title:'数据展示'">
+    <input type="text" placeholder="服务地址" id="serverAddresssId" value="http://localhost:11111" onblur="M.host=this.value"></input>
+    <input type="text" placeholder="连接库名" id="databasesName" value="ming-lie" onblur="M.databaseName=this.value" ></input>
     <!-- 资源管理按钮 -->
     <div id="resourceDataGridToolButton">
         <a name="remove" href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>

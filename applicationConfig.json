@@ -7,13 +7,6 @@
     "database" : "ming-lie",
     "multipleStatements": true
   },
-
   "listenFile":"D:\\wamp\\bin\\mysql\\mysql5.6.17\\data\\ming@002dlie\\ming_mysql_mq_message.ibd",
-
-  "ming_mysql_mq_config":[{
-      "id":1,
-      "topic":"topic01",
-      "topic_name":"订单",
-      "consumer":["http://192.168.1.101:11111/topic01Listener"]
-  }]
+  "mq_enable":true
 }
