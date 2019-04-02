@@ -8,5 +8,5 @@
     "multipleStatements": true
   },
   "listenFile":"D:\\wamp\\bin\\mysql\\mysql5.6.17\\data\\ming@002dlie\\ming_mysql_mq_message.ibd",
-  "mq_enable":true
+  "mq_enable":false
 }

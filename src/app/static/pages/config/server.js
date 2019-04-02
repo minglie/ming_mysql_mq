@@ -13,3 +13,17 @@ app.post("/listByPage",function (req,res) {
         res.send(M.result({rows,total}));
     })
 });
+
+
+app.post("/addOrUpdate",function (req,res) {
+    let sql=""
+    if(req.params.id){
+        sql=M.Db().getUpdateObjSql ("ming_mysql_mq_config",req.params,{id:req.params.id})+";";
+    }else {
+        delete(req.params.id);
+        sql=M.Db().getInsertObjSql("ming_mysql_mq_config",req.params)+";";
+    }
+    M.doSql(sql,(d)=>{
+        res.send(M.result(d));
+    })
+});

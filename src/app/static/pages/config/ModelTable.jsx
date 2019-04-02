@@ -1,5 +1,6 @@
-const {Table, Button, Select,Tooltip,Input,Icon } =antd;
+const {Table, Button,Modal, Select,Tooltip,Input,Icon ,Form,message} =antd;
 const { Option } = Select;
+
 class SearchInput extends React.Component {
     constructor(props) {
         super(props);
@@ -43,6 +44,73 @@ class SearchInput extends React.Component {
     }
 }
 
+
+const formItemLayout = {
+    labelCol: { span: 8},
+    wrapperCol: { span: 15},
+};
+const formTailLayout = {
+    labelCol: { span: 10},
+    wrapperCol: { span: 8, offset: 4 },
+};
+class DynamicRule extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        const { getFieldDecorator } = this.props.form;
+        const initValue=this.props.initValue;
+        //console.log("TTTTTTTTTTT",initValue)
+        return (
+            <div>
+                <Form.Item {...formItemLayout} label="id">
+                    {getFieldDecorator('id', {
+                        rules: [{
+                            required: false,
+                        }],
+                        initialValue:initValue.id
+                    })(
+                        <Input disabled />
+                    )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="topic">
+                    {getFieldDecorator('topic', {
+                        rules: [{
+                            required: false,
+                            message: 'Please input your topic',
+                        }],
+                        initialValue:initValue.topic
+                    })(
+                        <Input placeholder="Please input your topic"/>
+                    )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="topic_name">
+                    {getFieldDecorator('topic_name', {
+                        rules: [{
+                            required: false,
+                            message: 'Please input your topic_name',
+                        }],
+                        initialValue:initValue.topic_name
+                    })(
+                        <Input  placeholder="Please input your topic_name" />
+                    )}
+                </Form.Item>
+                <Form.Item {...formItemLayout} label="consumer">
+                    {getFieldDecorator('consumer', {
+                        rules: [{
+                            required: true,
+                            message: 'Please input your consumer',
+                        }],
+                        initialValue:initValue.consumer
+                    })(
+                        <Input placeholder="Please input your consumer" />
+                    )}
+                </Form.Item>
+            </div>
+        );
+    }
+}
+const WrappedDynamicRule = Form.create({ name: 'dynamic_rule' })(DynamicRule);
 
 
 class ModelTable extends React.Component {
@@ -97,6 +165,7 @@ class ModelTable extends React.Component {
         this.m_props= model.action(store.dispatch);
         this.state={
             Alldate:[],
+            visible:false,
             total: 0,
             topic:'',
             status:'2',
@@ -135,13 +204,23 @@ class ModelTable extends React.Component {
     }
 
     add(){
-        M.writeObjToFile("message",{})
-        location.href="/pages/add_or_edit_config/index.html";
+        M.writeObjToFile("message",{id:"",topic:"",topic_name:"",consumer:"[]"})
+        this.state.visible=true;
+        if(this.refs.wrappedDynamicRule){
+            let form=this.refs.wrappedDynamicRule.getForm();
+            form.setFieldsValue({id:"",topic:"",topic_name:"",consumer:"[]"});
+        }
+        this.setState(this.state)
     }
 
     edit(r){
         M.writeObjToFile("message",r)
-        location.href="/pages/add_or_edit_config/index.html"
+        this.state.visible=true;
+        if(this.refs.wrappedDynamicRule){
+            let form=this.refs.wrappedDynamicRule.getForm();
+            form.setFieldsValue({id:r.id,topic:r.topic,topic_name:r.topic_name,consumer:r.consumer});
+        }
+        this.setState(this.state)
     }
 
     delete(r){
@@ -156,9 +235,36 @@ class ModelTable extends React.Component {
         m_this.m_props.Alldatas(this.state);
     }
 
+    passshow(){
+        this.state.visible=false;
+        this.setState(this.state)
+    }
+
+    jconfirm(){
+        let form=this.refs.wrappedDynamicRule.getForm();
+        M.IO.addOrUpdate(form.getFieldsValue()).then(d=>{
+            message.success('成功');
+            this.state.visible=false;
+            m_this.m_props.Alldatas(this.state);
+        })
+    }
+
     render() {
         return (
             <div>
+                <Modal
+                    title="增改配置"
+                    className='farming-admin-modal'
+                    visible={this.state.visible}
+                    onOk={this.jconfirm.bind(this)}
+                    onCancel={this.passshow.bind(this)}
+                    okText="确认"
+                    cancelText="取消"
+                >
+                    <div>
+                        <WrappedDynamicRule ref="wrappedDynamicRule" initValue={M.getObjByFile("message")}/>
+                    </div>
+                </Modal>
                 <SearchInput topic={this.state.topic} status={this.state.status} father={this}/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <Button type="primary" onClick={this.deleteAll.bind(this)}>清空配置</Button>
@@ -177,6 +283,4 @@ class ModelTable extends React.Component {
             </div>
         )
     }
-
 }
-
